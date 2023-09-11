@@ -1,0 +1,14 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/gcc",
+      "-Iinclude",
+      "-o",
+      "clox",
+      "src/main.c"
+    ],
+    "directory": "/home/erick/programming/clang/clox",
+    "file": "/home/erick/programming/clang/src/main.c",
+    "output": "/home/erick/programming/clang/clox"
+  }
+]
