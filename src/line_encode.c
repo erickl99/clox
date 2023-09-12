@@ -28,11 +28,6 @@ void write_lines(LineEncode *encode, int line) {
       encode->count = encode->count + 2;
     }
   }
-  printf("Wrote to the encoding, this is what we have now:\n");
-  for (int i = 0; i < encode->count - 1; i = i + 2) {
-    printf("(Line %d, Bytes: %d)", encode->arr[i], encode->arr[i + 1]);
-  }
-  printf("\n");
 }
 
 void free_lines(LineEncode *encode) {
