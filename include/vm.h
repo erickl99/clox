@@ -12,16 +12,12 @@ typedef struct {
   Value *stack_top;
 } VM;
 
-typedef enum {
-  OK,
-  COMPILE_ERROR,
-  RUNTIME_ERROR
-} Result;
+typedef enum { OK, COMPILE_ERROR, RUNTIME_ERROR } Result;
 
 void init_vm();
 void free_vm();
 void push(Value value);
 Value pop();
-Result interpret(Chunk *chunk);
+Result interpret(char *source);
 
 #endif

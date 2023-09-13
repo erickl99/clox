@@ -1,5 +1,6 @@
 #include "vm.h"
 #include "common.h"
+#include "compiler.h"
 #include "debug.h"
 #include "value.h"
 #include <stdio.h>
@@ -52,7 +53,7 @@ static Result run() {
       break;
     }
     case OP_NEGATE: {
-      //push(-pop());
+      // push(-pop());
       Value *val_ptr = vm.stack_top - 1;
       *val_ptr = -(*val_ptr);
       break;
@@ -88,8 +89,7 @@ Value pop() {
   return *vm.stack_top;
 }
 
-Result interpret(Chunk *chunk) {
-  vm.chunk = chunk;
-  vm.ip = vm.chunk->code;
-  return run();
+Result interpret(char *source) {
+  compile(source);
+  return OK;
 }
