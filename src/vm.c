@@ -49,7 +49,7 @@ static Result run() {
       break;
     }
     case OP_MULTIPLY: {
-      BINARY_OP(-);
+      BINARY_OP(*);
       break;
     }
     case OP_NEGATE: {
@@ -90,6 +90,21 @@ Value pop() {
 }
 
 Result interpret(char *source) {
-  compile(source);
-  return OK;
+  Chunk chunk;
+  init_chunk(&chunk);
+
+  if (!compile(source, &chunk)) {
+    printf("Encountered error, freeing chunk\n");
+    free_chunk(&chunk);
+    return COMPILE_ERROR;
+  }
+
+  vm.chunk = &chunk;
+  vm.ip = vm.chunk->code;
+
+    printf("Going to run chunk\n");
+  Result result = run();
+
+  free_chunk(&chunk);
+  return result;
 }
