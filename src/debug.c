@@ -43,12 +43,26 @@ int disassemble_instr(Chunk *chunk, int offset) {
     return const_instr("OP_CONSTANT", chunk, offset);
   case OP_DIVIDE:
     return simple_instr("OP_DIVIDE", offset);
+  case OP_EQUAL:
+    return simple_instr("OP_EQUAL", offset);
+  case OP_FALSE:
+    return simple_instr("OP_FALSE", offset);
+  case OP_GREATER:
+    return simple_instr("OP_GREATER", offset);
+  case OP_LESS:
+    return simple_instr("OP_LESS", offset);
   case OP_MULTIPLY:
     return simple_instr("OP_MULTIPLY", offset);
   case OP_NEGATE:
     return simple_instr("OP_NEGATE", offset);
+  case OP_NIL:
+    return simple_instr("OP_NIL", offset);
+  case OP_NOT:
+    return simple_instr("OP_NOT", offset);
   case OP_SUBTRACT:
     return simple_instr("OP_SUBTRACT", offset);
+  case OP_TRUE:
+    return simple_instr("OP_TRUE", offset);
   case OP_RETURN:
     return simple_instr("OP_RETURN", offset);
   default:
