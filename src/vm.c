@@ -1,12 +1,11 @@
 #include "vm.h"
-#include "chunk.h"
 #include "common.h"
 #include "compiler.h"
 #include "debug.h"
 #include "line_encode.h"
 #include "memory.h"
 #include "object.h"
-#include "value.h"
+#include "table.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
@@ -166,9 +165,13 @@ static Result run() {
 void init_vm() {
   reset_stack();
   vm.objects = NULL;
+  init_table(&vm.strings);
 }
 
-void free_vm() { free_objects(); }
+void free_vm() {
+  free_objects();
+  free_table(&vm.strings);
+}
 
 void push(Value value) {
   *vm.stack_top = value;

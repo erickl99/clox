@@ -18,8 +18,8 @@ static void free_object(Obj *object) {
   switch (object->type) {
   case (OBJ_STRING): {
     ObjString *string = (ObjString *)object;
-    printf("Going to free this string with these contents: %s\n",
-           string->chars);
+    // printf("Going to free this string with these contents: %s\n",
+    //        string->chars);
     // FREE_ARRAY(char, string->chars, string->length + 1);
     FREE(ObjString, object);
     break;
