@@ -44,6 +44,7 @@ static void concatenate() {
   chars[length] = '\0';
 
   ObjString *result = take_string(chars, length);
+  FREE_ARRAY(char, chars, length);
   push(OBJ_VAL(result));
 }
 

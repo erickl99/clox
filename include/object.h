@@ -23,7 +23,7 @@ struct Obj {
 struct ObjString {
   Obj obj;
   int length;
-  char *chars;
+  char chars[];
 };
 
 ObjString *copy_string(const char *chars, int length);
