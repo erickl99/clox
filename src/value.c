@@ -62,3 +62,13 @@ bool values_equal(Value a, Value b) {
     return false;
   }
 }
+
+int find_value(const ValueArray *array, Value value) {
+  for (int i = 0; i < array->count; i++) {
+    Value curr = array->values[i];
+    if (IS_STRING(curr) && values_equal(curr, value)) {
+      return i;
+    }
+  }
+  return -1;
+}

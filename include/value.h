@@ -47,4 +47,5 @@ void write_value_array(ValueArray *array, Value value);
 void free_value_array(ValueArray *array);
 void print_value(Value value);
 bool values_equal(Value a, Value b);
+int find_value(const ValueArray *array, Value value);
 #endif

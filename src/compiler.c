@@ -143,7 +143,11 @@ static void parse_precedence(Precedence precedence);
 
 static uint8_t identifier_constant(Token *name) {
   Value val = OBJ_VAL(copy_string(name->start, name->length));
-  return make_constant(val);
+  int index = find_value(&current_chunk()->constants, val);
+  if (index == -1) {
+    return make_constant(val);
+  }
+  return (uint8_t)index;
 }
 
 static uint8_t parse_var(const char *error_msg) {
