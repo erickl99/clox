@@ -17,6 +17,12 @@ static int simple_instr(const char *name, int offset) {
   return offset + 1;
 }
 
+static int byte_instr(const char *name, Chunk *chunk, int offset) {
+  uint8_t slot = chunk->code[offset + 1];
+  printf("%-16s %4d\n", name, slot);
+  return offset + 2;
+}
+
 static int const_instr(const char *name, Chunk *chunk, int offset) {
   uint8_t constant = chunk->code[offset + 1];
   printf("%-16s %4d ", name, constant);
@@ -47,6 +53,8 @@ int disassemble_instr(Chunk *chunk, int offset) {
     return simple_instr("OP_DIVIDE", offset);
   case OP_GET_GLOBAL:
     return const_instr("OP_GET_GLOBAL", chunk, offset);
+  case OP_GET_LOCAL:
+    return byte_instr("OP_GET_LOCAL", chunk, offset);
   case OP_POP:
     return simple_instr("OP_POP", offset);
   case OP_EQUAL:
@@ -71,6 +79,8 @@ int disassemble_instr(Chunk *chunk, int offset) {
     return simple_instr("OP_RETURN", offset);
   case OP_SET_GLOBAL:
     return const_instr("OP_SET_GLOBAL", chunk, offset);
+  case OP_SET_LOCAL:
+    return byte_instr("OP_SET_LOCAL", chunk, offset);
   case OP_SUBTRACT:
     return simple_instr("OP_SUBTRACT", offset);
   case OP_TRUE:

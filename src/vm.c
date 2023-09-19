@@ -129,6 +129,11 @@ static Result run() {
       push(value);
       break;
     }
+    case OP_GET_LOCAL: {
+      uint8_t slot = READ_BYTE();
+      push(vm.stack[slot]);
+      break;
+    }
     case OP_GREATER: {
       BINARY_OP(BOOL_VAL, >);
       break;
@@ -181,6 +186,11 @@ static Result run() {
         runtime_error("Undefined variable '%s'.", name->chars);
         return RUNTIME_ERROR;
       }
+      break;
+    }
+    case OP_SET_LOCAL: {
+      uint8_t slot = READ_BYTE();
+      vm.stack[slot] = peek(0);
       break;
     }
     case OP_SUBTRACT: {
