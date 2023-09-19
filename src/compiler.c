@@ -181,7 +181,6 @@ static void print_statement() {
 
 static void synchronize() {
   parser.panic_mode = false;
-  printf("Inside syncronize\n");
   while (parser.current.type != TOKEN_EOF) {
     if (parser.previous.type == TOKEN_SEMICOLON) {
       return;
@@ -262,7 +261,6 @@ static void declaration() {
 
   if (parser.panic_mode) {
     synchronize();
-    printf("Exited panic mode\n");
   }
 }
 

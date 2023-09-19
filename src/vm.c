@@ -209,7 +209,7 @@ void init_vm() {
 
 void free_vm() {
   free_objects();
-  init_table(&vm.globals);
+  free_table(&vm.globals);
   free_table(&vm.strings);
 }
 

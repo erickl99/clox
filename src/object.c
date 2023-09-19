@@ -27,9 +27,9 @@ static ObjString *allocate_string(const char *chars, int length,
   }
   string->length = length;
   string->hash = hash;
-  table_set(&vm.strings, string, NIL_VAL);
   memcpy(string->chars, chars, length);
   string->chars[length] = '\0';
+  table_set(&vm.strings, string, NIL_VAL);
   Obj *object = (Obj *)string;
   object->type = OBJ_STRING;
   object->next = vm.objects;
