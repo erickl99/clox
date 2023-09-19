@@ -17,4 +17,4 @@ clean:
 
 .PHONY: debug
 debug: $(objects)
-	gcc $(objects) -g -fno-stack-protector $(flags) -o build/d_$(exec)
+	gcc $(objects) -g $(flags) -o build/d_$(exec)

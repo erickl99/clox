@@ -1,4 +1,5 @@
 #include "vm.h"
+#include "chunk.h"
 #include "common.h"
 #include "compiler.h"
 #include "debug.h"
@@ -6,6 +7,7 @@
 #include "memory.h"
 #include "object.h"
 #include "table.h"
+#include "value.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <string.h>
@@ -50,6 +52,7 @@ static void concatenate() {
 static Result run() {
 #define READ_BYTE() (*vm.ip++)
 #define READ_CONSTANT() (vm.chunk->constants.values[READ_BYTE()])
+#define READ_STRING() AS_STRING(READ_CONSTANT())
 #define BINARY_OP(type, op)                                                    \
   do {                                                                         \
     if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) {                          \
@@ -96,6 +99,12 @@ static Result run() {
       printf("\n");
       break;
     }
+    case OP_DEFINE_GLOBAL: {
+      ObjString *name = READ_STRING();
+      table_set(&vm.globals, name, peek(0));
+      pop();
+      break;
+    }
     case OP_DIVIDE: {
       BINARY_OP(NUMBER_VAL, /);
       break;
@@ -108,6 +117,16 @@ static Result run() {
     }
     case OP_FALSE: {
       push(BOOL_VAL(false));
+      break;
+    }
+    case OP_GET_GLOBAL: {
+      ObjString *name = READ_STRING();
+      Value value;
+      if (!table_get(&vm.globals, name, &value)) {
+        runtime_error("Undefined variable '%s'.", name->chars);
+        return RUNTIME_ERROR;
+      }
+      push(value);
       break;
     }
     case OP_GREATER: {
@@ -141,14 +160,32 @@ static Result run() {
       vm.stack_top[-1] = BOOL_VAL(is_falsey(val));
       break;
     }
-    case OP_SUBTRACT: {
-      BINARY_OP(NUMBER_VAL, -);
+    case OP_POP: {
+      pop();
+      break;
+    }
+    case OP_PRINT: {
+      print_value(pop());
+      printf("\n");
       break;
     }
     case OP_RETURN: {
-      print_value(pop());
-      printf("\n");
+      // print_value(pop());
+      // printf("\n");
       return OK;
+    }
+    case OP_SET_GLOBAL: {
+      ObjString *name = READ_STRING();
+      if (table_set(&vm.globals, name, peek(0))) {
+        table_delete(&vm.globals, name);
+        runtime_error("Undefined variable '%s'.", name->chars);
+        return RUNTIME_ERROR;
+      }
+      break;
+    }
+    case OP_SUBTRACT: {
+      BINARY_OP(NUMBER_VAL, -);
+      break;
     }
     case OP_TRUE: {
       push(BOOL_VAL(true));
@@ -159,17 +196,20 @@ static Result run() {
 
 #undef READ_BYTE
 #undef READ_CONSTANT
+#undef READ_STRING
 #undef BINARY_OP
 }
 
 void init_vm() {
   reset_stack();
   vm.objects = NULL;
+  init_table(&vm.globals);
   init_table(&vm.strings);
 }
 
 void free_vm() {
   free_objects();
+  init_table(&vm.globals);
   free_table(&vm.strings);
 }
 

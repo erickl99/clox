@@ -41,8 +41,14 @@ int disassemble_instr(Chunk *chunk, int offset) {
     return simple_instr("OP_ADD", offset);
   case OP_CONSTANT:
     return const_instr("OP_CONSTANT", chunk, offset);
+  case OP_DEFINE_GLOBAL:
+    return const_instr("OP_DEFINE_GLOBAL", chunk, offset);
   case OP_DIVIDE:
     return simple_instr("OP_DIVIDE", offset);
+  case OP_GET_GLOBAL:
+    return const_instr("OP_GET_GLOBAL", chunk, offset);
+  case OP_POP:
+    return simple_instr("OP_POP", offset);
   case OP_EQUAL:
     return simple_instr("OP_EQUAL", offset);
   case OP_FALSE:
@@ -59,12 +65,16 @@ int disassemble_instr(Chunk *chunk, int offset) {
     return simple_instr("OP_NIL", offset);
   case OP_NOT:
     return simple_instr("OP_NOT", offset);
+  case OP_PRINT:
+    return simple_instr("OP_PRINT", offset);
+  case OP_RETURN:
+    return simple_instr("OP_RETURN", offset);
+  case OP_SET_GLOBAL:
+    return const_instr("OP_SET_GLOBAL", chunk, offset);
   case OP_SUBTRACT:
     return simple_instr("OP_SUBTRACT", offset);
   case OP_TRUE:
     return simple_instr("OP_TRUE", offset);
-  case OP_RETURN:
-    return simple_instr("OP_RETURN", offset);
   default:
     printf("Unknown opcode %d\n", instruction);
     return offset + 1;

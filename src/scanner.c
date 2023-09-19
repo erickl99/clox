@@ -13,6 +13,7 @@ typedef struct {
 Scanner scanner;
 
 void init_scanner(const char *source) {
+  printf("This is the source: %s\n", source);
   scanner.start = source;
   scanner.current = source;
   scanner.line = 1;
@@ -245,7 +246,7 @@ Token scan_token() {
     return string();
   }
 
-  return error_token("Unexepected character");
+  return error_token("Unexpected character");
 }
 
 char *token_type_string(TokenType type) {
