@@ -232,7 +232,7 @@ static void declare_var() {
   add_local(*name);
 }
 
-static uint8_t parse_var(const char *error_msg) {
+static uint8_t parse_var(bool is_const, const char *error_msg) {
   consume(TOKEN_IDENTIFIER, error_msg);
 
   declare_var();
@@ -264,14 +264,18 @@ static void block() {
   consume(TOKEN_RIGHT_BRACE, "Expect '}' after block.");
 }
 
-static void var_declaration() {
-  uint8_t global = parse_var("Expect variable name.");
+static void var_declaration(bool is_const) {
+  uint8_t global = parse_var(is_const, "Expect variable name.");
 
   if (match(TOKEN_EQUAL)) {
     expression();
+  } else if (is_const) {
+    error("Missing initializer in const declaration.");
+    return;
   } else {
     emit_byte(OP_NIL);
   }
+
   consume(TOKEN_SEMICOLON, "Expect ';' after variable declaration");
   define_var(global);
 }
@@ -363,7 +367,9 @@ static void binary(bool can_assign) {
 
 static void declaration() {
   if (match(TOKEN_VAR)) {
-    var_declaration();
+    var_declaration(false);
+  } else if (match(TOKEN_CONST)) {
+    var_declaration(true);
   } else {
     statement();
   }
@@ -486,6 +492,7 @@ ParseRule rules[] = {
     [TOKEN_NUMBER] = {number, NULL, PREC_NONE},
     [TOKEN_AND] = {NULL, NULL, PREC_NONE},
     [TOKEN_CLASS] = {NULL, NULL, PREC_NONE},
+    [TOKEN_CONST] = {NULL, NULL, PREC_NONE},
     [TOKEN_ELSE] = {NULL, NULL, PREC_NONE},
     [TOKEN_FALSE] = {literal, NULL, PREC_NONE},
     [TOKEN_FOR] = {NULL, NULL, PREC_NONE},
