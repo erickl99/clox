@@ -1,0 +1,5 @@
+var a = true;
+{
+    var a = "hello";
+    print a + "something";
+}

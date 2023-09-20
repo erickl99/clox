@@ -1,0 +1,9 @@
+var a = true;
+if (a) {
+    var b = "hello";
+    print b + " world";
+}
+
+if (!a or true) {
+    print "we are so back";
+}
