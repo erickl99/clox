@@ -52,6 +52,7 @@ static void concatenate() {
 static Result run() {
 #define READ_BYTE() (*vm.ip++)
 #define READ_CONSTANT() (vm.chunk->constants.values[READ_BYTE()])
+#define READ_SHORT() (vm.ip += 2, (uint16_t)((vm.ip[-2] << 8) | vm.ip[-1]))
 #define READ_STRING() AS_STRING(READ_CONSTANT())
 #define BINARY_OP(type, op)                                                    \
   do {                                                                         \
@@ -138,8 +139,25 @@ static Result run() {
       BINARY_OP(BOOL_VAL, >);
       break;
     }
+    case OP_JUMP: {
+      uint16_t offset = READ_SHORT();
+      vm.ip += offset;
+      break;
+    }
+    case OP_JUMP_IF_FALSE: {
+      uint16_t offset = READ_SHORT();
+      if (is_falsey(peek(0))) {
+        vm.ip += offset;
+      }
+      break;
+    }
     case OP_LESS: {
       BINARY_OP(BOOL_VAL, <);
+      break;
+    }
+    case OP_LOOP: {
+      uint16_t offset = READ_SHORT();
+      vm.ip -= offset;
       break;
     }
     case OP_MULTIPLY: {
@@ -205,6 +223,7 @@ static Result run() {
   }
 
 #undef READ_BYTE
+#undef READ_SHORT
 #undef READ_CONSTANT
 #undef READ_STRING
 #undef BINARY_OP
