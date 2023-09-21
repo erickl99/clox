@@ -113,6 +113,8 @@ static TokenType identifier_type() {
   case 'c':
     if (scanner.current - scanner.start > 1) {
       switch (scanner.start[1]) {
+      case 'a':
+        return check_keyword(2, 2, "se", TOKEN_CASE);
       case 'l':
         return check_keyword(2, 3, "ass", TOKEN_CLASS);
       case 'o':
@@ -120,6 +122,8 @@ static TokenType identifier_type() {
       }
     }
     break;
+  case 'd':
+    return check_keyword(1, 6, "efault", TOKEN_DEFAULT);
   case 'e':
     return check_keyword(1, 3, "lse", TOKEN_ELSE);
   case 'f':
@@ -145,7 +149,15 @@ static TokenType identifier_type() {
   case 'r':
     return check_keyword(1, 5, "eturn", TOKEN_RETURN);
   case 's':
-    return check_keyword(1, 4, "uper", TOKEN_SUPER);
+    if (scanner.current - scanner.start > 1) {
+      switch (scanner.start[1]) {
+      case 'u':
+        return check_keyword(2, 3, "per", TOKEN_SUPER);
+      case 'w':
+        return check_keyword(2, 4, "itch", TOKEN_SWITCH);
+      }
+    }
+    break;
   case 't':
     if (scanner.current - scanner.start > 1) {
       switch (scanner.start[1]) {
@@ -229,6 +241,8 @@ Token scan_token() {
     return make_token(TOKEN_RIGHT_BRACE);
   case ';':
     return make_token(TOKEN_SEMICOLON);
+  case ':':
+    return make_token(TOKEN_COLON);
   case ',':
     return make_token(TOKEN_COMMA);
   case '.':
@@ -268,6 +282,8 @@ char *token_type_string(TokenType type) {
     return "}";
   case TOKEN_COMMA:
     return ",";
+  case TOKEN_COLON:
+    return ":";
   case TOKEN_DOT:
     return ".";
   case TOKEN_PLUS:
@@ -304,10 +320,14 @@ char *token_type_string(TokenType type) {
     return "number";
   case TOKEN_AND:
     return "and";
+  case TOKEN_CASE:
+    return "case";
   case TOKEN_CLASS:
     return "class";
   case TOKEN_CONST:
     return "const";
+  case TOKEN_DEFAULT:
+    return "default";
   case TOKEN_ELSE:
     return "else";
   case TOKEN_FALSE:
@@ -328,6 +348,8 @@ char *token_type_string(TokenType type) {
     return "return";
   case TOKEN_SUPER:
     return "super";
+  case TOKEN_SWITCH:
+    return "switch";
   case TOKEN_THIS:
     return "this";
   case TOKEN_TRUE:

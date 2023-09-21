@@ -7,3 +7,13 @@ if (a) {
 if (!a or true) {
     print "we are so back";
 }
+
+if (a and true) {
+    print "seems fine to me";
+}
+
+if (!a and true) {
+    print "it's so over";
+} else {
+    print "looking good";
+}

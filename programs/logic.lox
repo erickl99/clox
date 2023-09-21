@@ -1,0 +1,16 @@
+if (true or false) {
+    print "correct";
+} else {
+    print "uh oh";
+}
+
+var a = 5;
+if (a > 0 or a < 10) {
+    print "doing good";
+} else {
+    print "uh oh";
+}
+
+if (false or false) {
+    print "so over";
+}

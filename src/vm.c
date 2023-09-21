@@ -151,6 +151,21 @@ static Result run() {
       }
       break;
     }
+    case OP_JUMP_IF_TRUE: {
+      uint16_t offset = READ_SHORT();
+      if (!is_falsey(peek(0))) {
+        vm.ip += offset;
+      }
+      break;
+    }
+    case OP_JUMP_SWITCH: {
+      uint16_t offset = READ_SHORT();
+      Value a = pop();
+      if (!values_equal(a, peek(0))) {
+        vm.ip += offset;
+      }
+      break;
+    }
     case OP_LESS: {
       BINARY_OP(BOOL_VAL, <);
       break;

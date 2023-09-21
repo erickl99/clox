@@ -326,6 +326,54 @@ static void expression_statement() {
   emit_byte(OP_POP);
 }
 
+static void switch_statement() {
+  consume(TOKEN_LEFT_PAREN, "Expect '(' after 'switch'.");
+  expression();
+  consume(TOKEN_RIGHT_PAREN, "Expect ')' after condition.");
+  consume(TOKEN_LEFT_BRACE, "Expect '{' before case statements.");
+
+  int switch_jumps[UINT8_COUNT];
+  int case_count = 0;
+  while (!check(TOKEN_RIGHT_BRACE) && !check(TOKEN_DEFAULT) &&
+         !check(TOKEN_EOF)) {
+    if (match(TOKEN_CASE)) {
+      expression();
+      consume(TOKEN_COLON, "Expect ':' after expression.");
+      int case_jump = emit_jump(OP_JUMP_SWITCH);
+      statement();
+      int jump = emit_jump(OP_JUMP);
+      if (case_count == UINT8_COUNT) {
+        error("Too many case statements.");
+        return;
+      }
+      switch_jumps[case_count++] = jump;
+      patch_jump(case_jump);
+    } else {
+      error("Expect 'case' or 'default'");
+      return;
+    }
+  }
+  emit_byte(OP_POP);
+
+  if (match(TOKEN_DEFAULT)) {
+    consume(TOKEN_COLON, "Expect ':' after 'default'.");
+    statement();
+  }
+  if (check(TOKEN_DEFAULT)) {
+    error("Can only have at most one default statement.");
+    return;
+  }
+  if (check(TOKEN_CASE)) {
+    error("All case statements must appear before a default one.");
+    return;
+  }
+
+  consume(TOKEN_RIGHT_BRACE, "Expect '}' after case statements.");
+  for (int i = 0; i < case_count; i++) {
+    patch_jump(switch_jumps[i]);
+  }
+}
+
 static void for_statement() {
   begin_scope();
   consume(TOKEN_LEFT_PAREN, "Expect '(' after 'for'.");
@@ -506,6 +554,8 @@ static void statement() {
     while_statement();
   } else if (match(TOKEN_FOR)) {
     for_statement();
+  } else if (match(TOKEN_SWITCH)) {
+    switch_statement();
   } else if (match(TOKEN_LEFT_BRACE)) {
     begin_scope();
     block();
@@ -545,13 +595,11 @@ static void number(bool can_assign) {
 }
 
 static void or_(bool can_assign) {
-  int else_jump = emit_jump(OP_JUMP_IF_FALSE);
-  int end_jump = emit_jump(OP_JUMP);
+  int end_jump = emit_jump(OP_JUMP_IF_TRUE);
 
-  patch_jump(else_jump);
   emit_byte(OP_POP);
-
   parse_precedence(PREC_OR);
+
   patch_jump(end_jump);
 }
 

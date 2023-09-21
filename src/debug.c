@@ -74,6 +74,10 @@ int disassemble_instr(Chunk *chunk, int offset) {
     return jump_instr("OP_JUMP", 1, chunk, offset);
   case OP_JUMP_IF_FALSE:
     return jump_instr("OP_JUMP_IF_FALSE", 1, chunk, offset);
+  case OP_JUMP_IF_TRUE:
+    return jump_instr("OP_JUMP_IF_TRUE", 1, chunk, offset);
+  case OP_JUMP_SWITCH:
+    return jump_instr("OP_JUMP_SWITCH", 1, chunk, offset);
   case OP_LESS:
     return simple_instr("OP_LESS", offset);
   case OP_LOOP:
