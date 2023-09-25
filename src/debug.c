@@ -52,6 +52,8 @@ int disassemble_instr(Chunk *chunk, int offset) {
   switch (instruction) {
   case OP_ADD:
     return simple_instr("OP_ADD", offset);
+  case OP_CALL:
+    return byte_instr("OP_CALL", chunk, offset);
   case OP_CONSTANT:
     return const_instr("OP_CONSTANT", chunk, offset);
   case OP_DEFINE_GLOBAL:
