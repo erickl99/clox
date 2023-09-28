@@ -1,9 +1,8 @@
 fun fib(n) {
-  if (n < 2) return n;
-  return fib(n - 2) + fib(n - 1);
+    if (n < 0) return 0;
+    if (n < 3) return 1; 
+    return fib(n - 2) + fib(n - 1);
 }
 
-print "About to get the clock";
-var start = clock();
-print fib(35);
-print clock() - start;
+var a = fib(3);
+print "We finished";

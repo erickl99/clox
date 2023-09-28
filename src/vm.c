@@ -35,7 +35,8 @@ static void runtime_error(const char *format, ...) {
     CallFrame *frame = &vm.frames[i];
     ObjFunction *function = frame->function;
     size_t instruction = frame->ip - function->chunk.code - 1;
-    fprintf(stderr, "[line %d] in", function->chunk.encode.arr[instruction]);
+    fprintf(stderr, "[line %d] in ",
+            get_line(&function->chunk.encode, instruction));
     if (function->name == NULL) {
       fprintf(stderr, "script\n");
     } else {
@@ -120,14 +121,15 @@ static void concatenate() {
 
 static Result run() {
   CallFrame *frame = &vm.frames[vm.frame_count - 1];
-#define READ_BYTE() (*frame->ip++)
+  register uint8_t *ip = frame->ip;
+#define READ_BYTE() (*ip++)
 #define READ_CONSTANT() (frame->function->chunk.constants.values[READ_BYTE()])
-#define READ_SHORT()                                                           \
-  (frame->ip += 2, (uint16_t)((frame->ip[-2] << 8) | frame->ip[-1]))
+#define READ_SHORT() (ip += 2, (uint16_t)((ip[-2] << 8) | ip[-1]))
 #define READ_STRING() AS_STRING(READ_CONSTANT())
 #define BINARY_OP(type, op)                                                    \
   do {                                                                         \
     if (!IS_NUMBER(peek(0)) || !IS_NUMBER(peek(1))) {                          \
+      frame->ip = ip;                                                          \
       runtime_error("Operands must be numbers.");                              \
       return RUNTIME_ERROR;                                                    \
     }                                                                          \
@@ -146,7 +148,7 @@ static Result run() {
     }
     printf("\n");
     disassemble_instr(&frame->function->chunk,
-                      (int)(frame->ip - frame->function->chunk.code));
+                      (int)(ip - frame->function->chunk.code));
 #endif
 
     uint8_t instruction;
@@ -160,6 +162,7 @@ static Result run() {
         double b = AS_NUMBER(pop());
         push(NUMBER_VAL(a + b));
       } else {
+        frame->ip = ip;
         runtime_error("Operands must be two numbers or two strings");
         return RUNTIME_ERROR;
       }
@@ -167,10 +170,12 @@ static Result run() {
     }
     case OP_CALL: {
       int arg_count = READ_BYTE();
+      frame->ip = ip;
       if (!call_value(peek(arg_count), arg_count)) {
         return RUNTIME_ERROR;
       }
       frame = &vm.frames[vm.frame_count - 1];
+      ip = frame->ip;
       break;
     }
     case OP_CONSTANT: {
@@ -204,6 +209,7 @@ static Result run() {
       ObjString *name = READ_STRING();
       Value value;
       if (!table_get(&vm.globals, name, &value)) {
+        frame->ip = ip;
         runtime_error("Undefined variable '%s'.", name->chars);
         return RUNTIME_ERROR;
       }
@@ -221,20 +227,20 @@ static Result run() {
     }
     case OP_JUMP: {
       uint16_t offset = READ_SHORT();
-      frame->ip += offset;
+      ip += offset;
       break;
     }
     case OP_JUMP_IF_FALSE: {
       uint16_t offset = READ_SHORT();
       if (is_falsey(peek(0))) {
-        frame->ip += offset;
+        ip += offset;
       }
       break;
     }
     case OP_JUMP_IF_TRUE: {
       uint16_t offset = READ_SHORT();
       if (!is_falsey(peek(0))) {
-        frame->ip += offset;
+        ip += offset;
       }
       break;
     }
@@ -242,7 +248,7 @@ static Result run() {
       uint16_t offset = READ_SHORT();
       Value a = pop();
       if (!values_equal(a, peek(0))) {
-        frame->ip += offset;
+        ip += offset;
       }
       break;
     }
@@ -252,7 +258,7 @@ static Result run() {
     }
     case OP_LOOP: {
       uint16_t offset = READ_SHORT();
-      frame->ip -= offset;
+      ip -= offset;
       break;
     }
     case OP_MULTIPLY: {
@@ -263,6 +269,7 @@ static Result run() {
       // push(-pop());
       Value val = peek(0);
       if (!IS_NUMBER(val)) {
+        frame->ip = ip;
         runtime_error("Operand must be a number.");
         return RUNTIME_ERROR;
       }
@@ -294,16 +301,17 @@ static Result run() {
         pop();
         return OK;
       }
-
       vm.stack_top = frame->slots;
       push(result);
       frame = &vm.frames[vm.frame_count - 1];
+      ip = frame->ip;
       break;
     }
     case OP_SET_GLOBAL: {
       ObjString *name = READ_STRING();
       if (table_set(&vm.globals, name, peek(0))) {
         table_delete(&vm.globals, name);
+        frame->ip = ip;
         runtime_error("Undefined variable '%s'.", name->chars);
         return RUNTIME_ERROR;
       }
@@ -364,11 +372,6 @@ Result interpret(char *source) {
   }
 
   push(OBJ_VAL(function));
-  CallFrame *frame = &vm.frames[vm.frame_count++];
-  frame->function = function;
-  frame->ip = function->chunk.code;
-  frame->slots = vm.stack;
-
   call(function, 0);
 
   return run();

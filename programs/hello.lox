@@ -1,1 +1,5 @@
+var a = 67 + 68;
+var b = "something";
+print a + 78;
+print b;
 print "hello world";

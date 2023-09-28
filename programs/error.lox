@@ -1,0 +1,4 @@
+var a = "hello";
+print "something";
+clock(5);
+print a + 69;
