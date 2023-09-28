@@ -1,0 +1,7 @@
+fun foo(x) {
+    var a = 69;
+    print a + x;
+    return 420;
+}
+
+print foo(69);

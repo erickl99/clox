@@ -3,6 +3,7 @@
 #include "chunk.h"
 #include "debug.h"
 #include "line_encode.h"
+#include "object.h"
 #include "value.h"
 
 void disassemble_chunk(Chunk *chunk, const char *name) {
@@ -54,6 +55,23 @@ int disassemble_instr(Chunk *chunk, int offset) {
     return simple_instr("OP_ADD", offset);
   case OP_CALL:
     return byte_instr("OP_CALL", chunk, offset);
+  case OP_CLOSURE:
+    offset++;
+    uint8_t constant = chunk->code[offset++];
+    printf("%-16s %4d ", "OP_CLOSURE", constant);
+    print_value(chunk->constants.values[constant]);
+    printf("\n");
+    ObjFunction *function = AS_FUNCTION(chunk->constants.values[constant]);
+    for (int i = 0; i < function->upvalue_count; i++) {
+      int is_local = chunk->code[offset++];
+      int index = chunk->code[offset++];
+      printf("%04d      |                     %s %d\n", offset - 2,
+             is_local ? "local" : "upvalue", index);
+    }
+    return offset;
+  case OP_CLOSE_UPVALUE: {
+    return simple_instr("OP_CLOSE_UPVALUE", offset);
+  }
   case OP_CONSTANT:
     return const_instr("OP_CONSTANT", chunk, offset);
   case OP_DEFINE_GLOBAL:
@@ -64,6 +82,8 @@ int disassemble_instr(Chunk *chunk, int offset) {
     return const_instr("OP_GET_GLOBAL", chunk, offset);
   case OP_GET_LOCAL:
     return byte_instr("OP_GET_LOCAL", chunk, offset);
+  case OP_GET_UPVALUE:
+    return byte_instr("OP_GET_UPVALUE", chunk, offset);
   case OP_POP:
     return simple_instr("OP_POP", offset);
   case OP_EQUAL:
@@ -100,6 +120,8 @@ int disassemble_instr(Chunk *chunk, int offset) {
     return const_instr("OP_SET_GLOBAL", chunk, offset);
   case OP_SET_LOCAL:
     return byte_instr("OP_SET_LOCAL", chunk, offset);
+  case OP_SET_UPVALUE:
+    return byte_instr("OP_SET_UPVALUE", chunk, offset);
   case OP_SUBTRACT:
     return simple_instr("OP_SUBTRACT", offset);
   case OP_TRUE:
